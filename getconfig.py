@@ -16,9 +16,9 @@ from requests.auth import HTTPBasicAuth  # for Basic Auth
 
 # BUGBUG - We need to clean this up so we don't use globals
 
-DNAC_URL = 'https://10.56.142.245'
-DNAC_USER = 'admin'
-DNAC_PASS = 'C1sco12345'
+DNAC_URL = 'https://my.dnac.tld'
+DNAC_USER = 'user-with-read-rights'
+DNAC_PASS = 'mypassword'
 
 def get_dnac_jwt_token(dnac_auth):
     """NA C - /api/system
