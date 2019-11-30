@@ -6,6 +6,7 @@ import csv
 import argparse
 import pprint
 import getconfig
+import logging.handlers
 
 def rule_test(rule, config):
     name = rule['name']
@@ -63,9 +64,15 @@ def rule_test(rule, config):
 
 def main():
     # Parse arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument("rulesfile")
+    parser = argparse.ArgumentParser(description='Cisco IOS Compliance Check')
+    parser.add_argument("--rulesfile", type=str, help='Please enter the filename for compliance rules is JSON format')
+    parser.add_argument("--syslog_ip", help="[Optional] Please enter the IP address of the syslog server")
+    parser.add_argument('--syslog_port', help="[Optional] Please enter the UDP of the syslog server, default port is 514", type=int, default=514)
     args = parser.parse_args()
+
+    # Arguments verification:
+    if args.rulesfile is None:
+        raise Exception("Sorry, no rules file is set")
 
     # Read in json file containing rules
     # BUGBUG - This urgently needs input validation
@@ -100,11 +107,27 @@ def main():
     pp = pprint.PrettyPrinter(width=120)
     pp.pprint (result)
 
+# Exporting results to a CSV file
+
     resultcsv = "compliance-check.csv"
     with open(resultcsv, 'w', newline='') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerows(result)
     print("Compliance check results are in " + resultcsv)
+
+# Setting and sending results via syslog
+    if args.syslog_ip:
+# Creating the logger
+        syslog_logger = logging.getLogger('syslog_logger')
+        syslog_logger.setLevel(logging.INFO)
+
+# Creating the logging handler, directing to the syslog server
+        handler = logging.handlers.SysLogHandler(address=(args.syslog_ip,514))
+        syslog_logger.addHandler(handler)
+
+# Sending the results via syslog
+        for res in result:
+            syslog_logger.info(res)
 
 if __name__ == '__main__':
     #BUGBUG There has to be a better way than using globals
