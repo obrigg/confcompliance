@@ -1,5 +1,5 @@
 # confcompliance
-##Cisco DNA Center / IOS Config Compliance tool
+## Cisco DNA Center / IOS Config Compliance tool
 This is a proof of concept, not a full featured tool. Created during SEVT Hackathon.
 This code will pull all device configurations from Cisco DNA Center's inventory, and check configuration against compliance rules formatted in json.
 
