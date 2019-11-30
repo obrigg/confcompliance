@@ -6,7 +6,8 @@
         "command" : "telnet server",
         "value" : "enabled",
         "passmsg" : "No telnet: Passed, telnet not configured",
-        "failmsg" : "No telnet: FAILED, telnet is configured"
+        "failmsg" : "No telnet: FAILED, telnet is configured",
+        "severity" : 80
       },
       {
         "name" : "Complex user password",
@@ -14,7 +15,8 @@
         "command" : "username",
         "value" : "common-criteria-policy sanpasscomplex",
         "passmsg" : "Complex password: Passed, username has complex password policy configured",
-        "failmsg" : "Complex password: FAILED, username DOES NOT have complex password policy configured"
+        "failmsg" : "Complex password: FAILED, username DOES NOT have complex password policy configured",
+        "severity" : 50
       },
       {
         "name" : "NTP present",
@@ -22,7 +24,8 @@
         "command" : "ntp server",
         "value" : "ntp.example.com",
         "passmsg" : "NTP present: Passed, NTP server correctly configured`",
-        "failmsg" : "NTP present: FAILED, NTP server NOT configured or set to wrong value"
+        "failmsg" : "NTP present: FAILED, NTP server NOT configured or set to wrong value",
+        "severity" : 20
       }
     ]
    }

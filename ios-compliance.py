@@ -9,9 +9,12 @@ import getconfig
 import logging.handlers
 
 def rule_test(rule, config):
+
+# Setting the rule's attiributes
     name = rule['name']
     presence = rule['presence']
     command = rule['command']
+    severity = rule['severity']
     if 'child' in rule:
         child = rule['child']
     else:
@@ -22,10 +25,14 @@ def rule_test(rule, config):
         value = None
     failmsg = rule['failmsg']
     passmsg = rule['passmsg']
+    global highestSeverity
 
+#  Testing the config agaist the rule
     all_cmds = config.find_objects(r"^" + command)
     if presence and not all_cmds:
-        detail_result.append(failmsg)
+        detail_result.append(failmsg + " Severity: " + str(severity))
+        if highestSeverity<severity:
+            highestSeverity = severity
         return False
     elif not presence and not all_cmds:
         detail_result.append(passmsg)
@@ -36,7 +43,7 @@ def rule_test(rule, config):
         if child:
             print ("not yet implemented")
             #if cmd.re_search_children(r"^" + child):
-                # if value and value == 
+                # if value and value ==
                 # BUGBUG - add child processing
         else:
             if value:
@@ -46,10 +53,14 @@ def rule_test(rule, config):
                         return True
                     else:
                         detail_result.append(failmsg + ", with command: " + cmd.text)
+                        if highestSeverity<severity:
+                            highestSeverity = severity
                         return False
                 else:
                     if presence:
                         detail_result.append(failmsg + ", with command: " + cmd.text)
+                        if highestSeverity<severity:
+                            highestSeverity = severity
                         return False
                     else:
                         detail_result.append(passmsg)
@@ -59,6 +70,8 @@ def rule_test(rule, config):
                 return True
             else:
                 detail_result.append(failmsg + ", with command: " + cmd.text)
+                if highestSeverity<severity:
+                    highestSeverity = severity
                 return False
 
 
@@ -79,14 +92,16 @@ def main():
     if args.rulesfile:
         with open(args.rulesfile, "r") as f:
             rules = json.load(f)
-    
+
     #Get all device configs and iterate through them
     all_configs = getconfig.get_config_from_cdnac()
     for config in all_configs:
         parse = CiscoConfParse(config["config"])
         # Iterate through rules
-        del detail_result[:] 
+        del detail_result[:]
         passed = True
+        global highestSeverity
+        highestSeverity = 0
         for rule in rules['Rules']:
         #config = ['telnet server enabled','username networkus privilege 15 common-criteria-policy sanpasscomplex secret 5 $1$.nZp$CTnRQGYhnX.rW5BCGCRaw0']
             #Check for rule and append to output
@@ -95,9 +110,9 @@ def main():
 
         entry = []
         if passed:
-            entry.append("Test of device " + config["hostname"] + " , device PASSED")
+            entry.append("Test of device " + config["hostname"] + ", device PASSED")
         else:
-            entry.append("Test of device " + config["hostname"] + " , device FAILED")
+            entry.append("Test of device " + config["hostname"] + ", device FAILED, severity " + str(highestSeverity))
         entry.append("-----")
         entry.extend(detail_result)
         entry.append("-----")
@@ -133,4 +148,5 @@ if __name__ == '__main__':
     #BUGBUG There has to be a better way than using globals
     result = []
     detail_result = []
+    highestSeverity = 0
     main()
